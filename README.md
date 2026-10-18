@@ -10,13 +10,9 @@ The photo shows the circuit for task 2.2.
 
 ### Results
 
-The Serial Monitor shows 10 measurements. The ON and OFF lines alternate.
+A BOOT press starts a series of 10 measurements. The ON and OFF lines alternate. At the end, the board prints the average switching time for ON, for OFF and for all 10 measurements.
 
 ![Task 2.2 serial output](docs/task-2-2-serial-output.png)
-
-The table shows the average switching time for ON, for OFF and for all 10 measurements.
-
-![Task 2.2 averages](docs/task-2-2-averages.png)
 
 ## Task 2.2 (Optional) Schema
 
