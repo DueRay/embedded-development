@@ -13,7 +13,7 @@
 #define LDR_ADC_ATTEN       ADC_ATTEN_DB_12
 #define LED_PIN             GPIO_NUM_16
 
-#define SMA_ALPHA           0.1f
+#define EMA_ALPHA           0.1f
 #define SAMPLE_PERIOD_MS    50
 #define LOG_EVERY_N         10
 
@@ -22,9 +22,9 @@
 
 static const char *TAG = "ldr_night_light";
 
-static float sma_update(float prev, int raw)
+static float ema_update(float prev, int raw)
 {
-    return SMA_ALPHA * raw + (1.0f - SMA_ALPHA) * prev;
+    return EMA_ALPHA * raw + (1.0f - EMA_ALPHA) * prev;
 }
 
 static bool adc_calibration_init(adc_cali_handle_t *out_handle)
@@ -72,7 +72,7 @@ void app_main(void)
 
     int raw = 0;
     ESP_ERROR_CHECK(adc_oneshot_read(adc_handle, LDR_ADC_CHANNEL, &raw));
-    float sma = raw;
+    float ema = raw;
     bool led_on = false;
     int tick = 0;
 
@@ -85,8 +85,8 @@ void app_main(void)
             continue;
         }
 
-        sma = sma_update(sma, raw);
-        int filtered = (int)sma;
+        ema = ema_update(ema, raw);
+        int filtered = (int)ema;
 
         if (!led_on && filtered < DARK_THRESHOLD) {
             led_on = true;
@@ -101,9 +101,9 @@ void app_main(void)
         if (++tick % LOG_EVERY_N == 0) {
             int mv = 0;
             if (calibrated && adc_cali_raw_to_voltage(cali_handle, filtered, &mv) == ESP_OK) {
-                ESP_LOGI(TAG, "raw=%4d  sma=%4d  (%d мВ)  LED=%s", raw, filtered, mv, led_on ? "ON" : "OFF");
+                ESP_LOGI(TAG, "raw=%4d  ema=%4d  (%d мВ)  LED=%s", raw, filtered, mv, led_on ? "ON" : "OFF");
             } else {
-                ESP_LOGI(TAG, "raw=%4d  sma=%4d  LED=%s", raw, filtered, led_on ? "ON" : "OFF");
+                ESP_LOGI(TAG, "raw=%4d  ema=%4d  LED=%s", raw, filtered, led_on ? "ON" : "OFF");
             }
         }
 
